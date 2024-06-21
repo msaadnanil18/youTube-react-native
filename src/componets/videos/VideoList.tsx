@@ -1,4 +1,4 @@
-import axios from 'axios';
+
 import React from 'react';
 import {
   StyleSheet,
@@ -7,17 +7,21 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  RefreshControl,
 } from 'react-native';
+import { instance } from '../../hook/setDefaultUrl';
 import {StackPramsList, Videos} from '../../types';
 import Video, {ResizeMode, VideoRef} from 'react-native-video';
-import {Card, Divider, Spinner, Button} from '@ui-kitten/components';
+import { Divider, Spinner } from '@ui-kitten/components';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 
 type homeProps = NativeStackScreenProps<StackPramsList, 'videos'>;
 
 const VideoList = ({navigation, type}: homeProps  & {type?:string} | any) => {
+  const {api} = instance()
   const [videosList, setVideosList] = React.useState<Videos[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
+  const [refreshing, setRefreshing] = React.useState<boolean>(false);
   const [isPlayingIndex, setIsPlayingIndex] = React.useState<number | null>(
     null,
   );
@@ -30,13 +34,26 @@ const VideoList = ({navigation, type}: homeProps  & {type?:string} | any) => {
   const fetchVideosList = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
+      const response = await api.get(
         '/videos/list-videos',
       );
       setVideosList(response.data.data);
       setLoading(false);
     } catch (error) {
       console.log(error);
+      setLoading(false);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const response = await api.get('/videos/list-videos');
+      setVideosList(response.data.data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -45,7 +62,11 @@ const VideoList = ({navigation, type}: homeProps  & {type?:string} | any) => {
   }, []);
 
   return (
-    <ScrollView>
+    <ScrollView
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <View style={styles.container}>
         {loading ? (
           <View style={styles.spinner}>
@@ -55,20 +76,19 @@ const VideoList = ({navigation, type}: homeProps  & {type?:string} | any) => {
           <View>
             {videosList.map((item, index) => (
               <TouchableOpacity
-               
                 key={index}
                 onPress={() =>
                   navigation.navigate('videoPlay', {videoId: item._id})
                 }
-                 onPressIn={() => handleOnFocus(index)}
-                >
+                onPressIn={() => handleOnFocus(index)}
+              >
                 <View style={styles.videoContainer}>
                   {isPlayingIndex === index && type !== 'videoPlay' ? (
                     <Video
                       ref={videoRef}
                       source={{uri: item?.videoFile}}
                       style={styles.video}
-                      resizeMode={ResizeMode.COVER}
+                      resizeMode={ResizeMode.CONTAIN}
                       controls={false}
                       muted={true}
                       pictureInPicture={false}
@@ -82,7 +102,6 @@ const VideoList = ({navigation, type}: homeProps  & {type?:string} | any) => {
                       }}
                     />
                   )}
-
                   <View style={styles.textContainer}>
                     <Text>{item?.title}</Text>
                     <Divider style={styles.divider} />
@@ -115,12 +134,13 @@ const styles = StyleSheet.create({
   video: {
     width: '100%',
     height: 200,
+    padding: 0,
   },
   textContainer: {
     padding: 16,
   },
   divider: {
-    marginVertical: 8,
+    marginVertical: 4,
   },
   posterContainer: {
     flex: 1,
@@ -144,6 +164,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 200,
     borderRadius: 10,
+    padding: 0,
   },
 });
 

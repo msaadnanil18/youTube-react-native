@@ -7,7 +7,8 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import VideoPlay from '../componets/videos/VideoPlay';
 import Search from '../componets/search/Search';
 import {useNavigation,NavigationProp} from '@react-navigation/native';
-
+import RegistrationForm from '../componets/settings/authentication/RegistrationForm';
+import LoginForm from '../componets/settings/authentication/LoginForm';
 
 const Stack = createNativeStackNavigator<StackPramsList>();
 
@@ -47,6 +48,8 @@ const StackRouer = () => {
         options={{title: ''}}
       />
       <Stack.Screen name="Search" component={Search} options={{title: '',  headerShown: false,}} />
+      <Stack.Screen name='RegistrationForm' component={RegistrationForm} options={{title: '',  headerShown: false,}} />
+      <Stack.Screen name='LoginForm' component={LoginForm} options={{title: '',  headerShown: false,}} />
     </Stack.Navigator>
   );
 };

@@ -5,7 +5,7 @@ import VideosUpload from '../componets/videos/VideosUpload';
 import {ButtomTabsParsms} from '../types';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import StackRouer from './StackRouer';
-
+import Index from '../componets/settings/Index';
 
 const Tab = createMaterialBottomTabNavigator<ButtomTabsParsms>();
 
@@ -16,7 +16,7 @@ const ButtomTabRouter = () => {
         name="Home"
         component={StackRouer}
         options={{
-          tabBarLabel: '',
+          tabBarLabel: 'Home',
           tabBarIcon: () => <AntDesign size={20} name="home" />,
         }}
       />
@@ -26,11 +26,20 @@ const ButtomTabRouter = () => {
         options={{
           tabBarLabel: '',
           tabBarIcon: () => (
-            <AntDesign name="plussquareo" size={20} color="white" />
+            <AntDesign name="plussquareo" size={30} color="white" />
           ),
         }}
       />
-     
+      <Tab.Screen
+        name="Settings"
+        component={Index}
+        options={{
+          tabBarLabel: 'You',
+          tabBarIcon: () => (
+            <AntDesign name="user" size={20} color="white" />
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 };
